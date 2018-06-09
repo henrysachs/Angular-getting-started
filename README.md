@@ -1,3 +1,4 @@
+# Angular Getting Started
 Um zu beginnen benötigst du NPM (>= 5.5.1) und Node.js (>=8.9)
 
 danach kannst du mit NPM die Angular CLI installieren via:
@@ -11,6 +12,8 @@ ng -v
 ```
 
 eingeben.
+
+## Kapitel 1
 
 Danach kannst du über die Kommandozeile mit dem Befehl:
 
@@ -83,4 +86,17 @@ Um dies zu testen können wir in unserer App Komponente im Template den Selektor
 ```
 
 Die Ausgabe im Browser sieht dann wie folgt aus 
+
 ![alt text](https://github.com/henrysachs/Angular-getting-started/blob/master/Pictures/getting-started.PNG "Ausgabe des Browsers")
+
+Nun könnten wir weitere Komponenten Anlegen wie beispielsweise eine Toolbar oder einen Footer.
+
+## Kapitel 2
+
+In diesem Kapitel wollen wir auf Routing und Http Requests in Angular eingehen. Hierfür erstellen wir uns ein neues Angular Projekt und fügen das routing flag an wodurch die Basisdateien für uns erstellt werden. Wir könnten diese auch selbst anlegen aber so sind wir etwas schneller.
+
+``` bash
+ng new http-calls --routing
+```
+
+In diesem Kapitel wollen wir in Angular mit einem Backend kommunizieren in unserem Fall wird dies mit dem Wetterdienst [OpenWeatherMap](https://openweathermap.org/). Hierfür müssen wir uns einen Account bei dem Dienst anlegen und Requests mit dem bereitgestellten API Key ausführen. 
