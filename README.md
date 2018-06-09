@@ -83,4 +83,4 @@ Um dies zu testen können wir in unserer App Komponente im Template den Selektor
 ```
 
 Die Ausgabe im Browser sieht dann wie folgt aus 
-![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
+![alt text](https://github.com/henrysachs/Angular-getting-started/blob/master/Pictures/getting-started.PNG "Ausgabe des Browsers")
