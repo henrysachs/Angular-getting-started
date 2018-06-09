@@ -1,0 +1,6 @@
+<label for="city">Choose a city: </label>
+<input id="city" name="city" type="text" #city>
+<button (click)="requestCity(city.value)">Send</button>
+
+<pre *ngIf="weatherData"> {{weatherData | json}}</pre>
+<p *ngIf="errormessage">Stadt nicht gefunden</p>
