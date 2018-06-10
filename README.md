@@ -171,8 +171,9 @@ export class WeatherInputComponent implements OnInit {
 Weather service
 Weather Interface
 weather details component
+import fontawesome in index.html
 
-chapter 3
+## Kapitel 3
 
 ```bash
 npm install — save @types/googlemaps
