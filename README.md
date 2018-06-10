@@ -185,7 +185,9 @@ in Index.html
 <script src=”http://maps.googleapis.com/maps/api/js"></script>
 ```
 
-```
+danach erstellen von modulen und componenten
+
+```bash
 ng generate module shared
 cd src/app/shared/
 ng generate component map
