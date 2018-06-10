@@ -227,4 +227,4 @@ export class MapComponent implements OnInit {
 }
 ```
 
-https://weatherapi-1528656089426.firebaseapp.com
+[DEMO](https://weatherapi-1528656089426.firebaseapp.com)
