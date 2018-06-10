@@ -1,0 +1,9 @@
+<label for="city">Choose a city: </label>
+<input id="city" name="city" type="text" #city>
+<button (click)="requestCity(city.value)">Send</button>
+
+<p *ngIf="errormessage">Stadt nicht gefunden</p>
+ <div class="weather__container">
+  <app-weather-details class="weather-details" [weatherData]="weatherData" *ngIf="weatherData"></app-weather-details>
+  <app-map class="weather-map" [lat]="weatherData.coord.lat" [len]="weatherData.coord.lon" *ngIf="weatherData"></app-map>
+</div>

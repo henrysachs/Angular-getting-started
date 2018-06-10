@@ -17,6 +17,7 @@ export class WeatherInputComponent implements OnInit {
   }
 
   requestCity(city) {
+    this.weatherData = null;
     this.weatherService.getWeatherData(city).subscribe((data: WeatherObject) => {
       this.weatherData = data;
       this.errormessage = null;
