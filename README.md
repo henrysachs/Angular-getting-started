@@ -171,3 +171,58 @@ export class WeatherInputComponent implements OnInit {
 
 Weather service
 Weather Interface
+weather details component
+
+chapter 3
+
+```bash
+npm install — save @types/googlemaps
+```
+
+in Index.html
+
+```Html
+<script src=”http://maps.googleapis.com/maps/api/js"></script>
+```
+
+```
+ng generate module shared
+cd src/app/shared/
+ng generate component map
+```
+
+export map in shared
+import shared module in Wettermodule
+
+``` html
+<div #gmap style=”width:100%;height:400px”></div>
+```
+
+```typescript
+import { Component, OnInit, ViewChild, Input } from '@angular/core';
+import { } from '@types/googlemaps';
+
+@Component({
+  selector: 'app-map',
+  templateUrl: './map.component.html',
+  styleUrls: ['./map.component.css']
+})
+export class MapComponent implements OnInit {
+
+  @ViewChild('gmap') gmapElement: any;
+  @Input() lat;
+  @Input() len;
+  map: google.maps.Map;
+
+  ngOnInit() {
+    const mapProp = {
+      center: new google.maps.LatLng(this.lat, this.len),
+      zoom: 15,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    this.map = new google.maps.Map(this.gmapElement.nativeElement, mapProp);
+  }
+}
+```
+
+https://weatherapi-1528656089426.firebaseapp.com

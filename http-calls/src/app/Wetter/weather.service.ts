@@ -7,7 +7,7 @@ import {environment} from './../../environments/environment';
 })
 export class WeatherService {
 
-  readonly BASE_URL = 'http://api.openweathermap.org/data/2.5/';
+  readonly BASE_URL = 'https://api.openweathermap.org/data/2.5/';
 
   constructor(private http: HttpClient) { }
 
