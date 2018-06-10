@@ -168,7 +168,6 @@ export class WeatherInputComponent implements OnInit {
 }
 ```
 
-
 Weather service
 Weather Interface
 weather details component
