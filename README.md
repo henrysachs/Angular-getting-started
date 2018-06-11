@@ -126,8 +126,44 @@ ng generate component weatherDetail
 ng generate component weatherInput
 ```
 
-http client import 
-import weathermodule in app module 
+Um HTTP Requests tätigen zu können bietet Angular eine Abstraktion von den Standard XML HTTP Request in Javascript. Diese macht das integrieren von APIs sehr einfach. Hierfür müssen wir in unserem Root Modul das sogenannte HttpClientModule importieren. Damit steht unserer Anwendung dieses nun zur verfügung. In unserem Wetterservice selbst müssen wir jedoch auch eine Instanz des Httpclients erstellen. Dies geschieht im Constructor der Klasse und durch die Dependency Injection sparen wir uns das schrieben dieser Form:
+
+```typescript
+constructor(private http: HttpClient) {
+this.http = http;
+}
+```
+
+und nutzen diese:
+
+```typescript
+constructor(private http: HttpClient) {}
+```
+
+Des weiteren müssen wir in unserer Anwendung im Template ein Eingabefeld und den zugehörigen Button zum Senden anlegen. Dies könnte der Einfachheit halber so aussehen:
+
+```html
+<label for="city">Choose a city: </label>
+<input id="city" name="city" type="text">
+<button>Send</button>
+```
+
+Nun müssen wir eine Aktion an das Click event binden um danach unseren Http Request durchführen zu können. Hierfür bietet Angular auch möglichkeiten um das binden zu vereinfachen. Die Browserevents werden an das Element gebunden indem es in runde Klammern geschrieben wird und danach die Funtkion folgt welche aufgerufen werden soll. Außerdem wollen wir der Funtkion den eingegeben Wert des Textfeldes übergeben. Damit dies im Template erfolgen kann können wir in Angular Elementen Referenzen zuordnen über die Raute. Unser Eingabefeld sieht dann wie folgt aus:
+
+```html
+<input id="city" name="city" type="text" #city>
+```
+
+nun können wir der Funktion den wert des Referenzierten Elementes übergeben.
+Unser Template sieht dann wie folgt aus:
+
+```html
+<label for="city">Choose a city: </label>
+<input id="city" name="city" type="text" #city>
+<button (click)="requestCity(city.value)">Send</button>
+```
+
+Nun müssen wir die Funktion requestCity auch in unserer Klasse implementieren. Des weiteren bekommt diese Funktion den Stadtnamen übergeben mit welchem wir einen Request an die OpenWeatherApi  machen können. Da der Request Asynchron erfolgt müssen wir auf die Antwort "warten". Dies erledigt der HttpClient für uns. Dieser setzt jedoch auf das Design Pattern der Observables womit wir nach unserem Request mitteilen müssen das wir die Rückgabe "abbonieren" (subscriben) wollen. Dies geschieht mit der Subscribe Methode der von Angular mitgelieferten subscribe Methode. Zum nutzen dieser müssen wir mindestens eine Methode im Fall das vom Observable Daten gesendet werden implementieren. Außerdem können noch 2 weitere Funktionen aufgerufen werden vom Observable. Eine im Fall eines Fehlers in welchem wir diesen fehler in der Konsole ausgeben und eine Im Falle das der Observable Finalisiert. Wenn wir nun Daten vom Observable erhalten weisen wir diese einer Variablen zu, welche wir dann in unserem Temlate verwenden werden um diese vorerst einfach auszugeben. Da diese im JSON Format vorliegen können wir die JSON Pipe von Angular nutzen, welche uns die Daten formatiert. Eine Pipe in Angular ist vorgesehen um Daten zu transformieren. Die Notation sieht wie folgt aus: ```{{VAR_NAME | PIPE_NAME}}``` es können auch mehrere Pipes aneinander gebunden werden. Außerdem wollen wir diese Daten nur in dem Fall anzeigen wenn sie auch wirklich vorhanden sind. Hierfür bietet sich die *ngIf Direktive an. Unser Template und unsere zugehörige Klasse sehen dann wie folgt aus:
 
 ``` html
 <label for="city">Choose a city: </label>
