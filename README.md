@@ -202,9 +202,10 @@ export class WeatherInputComponent implements OnInit {
   }
 }
 ```
+
 Jedoch könnten andere Komponenten auch Requests an die API machen wollen. Außerdem sollten Komponenten nicht Daten laden oder speichern sondern diese lediglich anfordern und delegieren. Für das Laden von Daten nutzt Angular sogenannte Services. Sie bieten die Möglichkeit Daten zwischen Apis und Komponenten aber auch allgemein zwischen Komponenten auszutauschen welche nicht von einander wissen müssen. Ein service wird genau wie eine Komponente mit dem generate Kommando erzeugt. Wir werden nun also unsere Http Requests in einen Service auslagern.
 
-```
+```bash
 ng generate service weather
 ```
 
@@ -232,8 +233,9 @@ export class WeatherService {
 }
 ```
 
-Wir haben außerdem unseren API key in die Umgebungsvariablen ausgelagert und greifen von dort aus zu. Dies ist für das Beispiel Optional.
+Wir haben außerdem unseren API key in die Umgebungsvariablen ausgelagert und greifen von dort aus zu. Dies ist für das Beispiel Optional. Außerdem wird unser Service derzeit in unserem Root Modul instanziert wie man an dem parameter provideIn sehen kann. Dies können wir noch auf ```WeatherModule``` ändern somit wird der Service auch nur dann instanziiert wenn er benötigt wird und spart etwas performance ein.
 Nun müssen wir noch unseren WeatherService in der Komponente verwenden. Hierfür nutzen wir wieder die Dependency injection von Angular. Danach rufen wir die Methode getWeatherData auf.
+
 ```typescript
 export class WeatherComponent implements OnInit {
 
