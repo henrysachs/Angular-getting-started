@@ -115,15 +115,14 @@ zu Beginn legen wir uns einen Ordner Wetter an in welchen wir alle Komponenten b
 ng generate module Weather --flat
 ```
 
-Über das generate Kommando können wir allerlei Klassen generieren wie Komponenten oder Services aber auch Module. Durch das flat Flag wird kein neuer Ordner erstellt. 
-Nun benötigen wir eine Komponente welche das Eingabefeld für den Nutzer bereitstellt, eine weitere Welche unsere Wetterdaten anzeigt und eine Komponente welche diese bündelt.
+Über das generate Kommando können wir allerlei Klassen generieren wie Komponenten oder Services aber auch Module. Durch das flat Flag wird kein neuer Ordner erstellt.
+In der Hauptkomponente Wetter werden wir das Eingabefeld für den Nutzer bereitstellt, außerdem benötigen wir eine Komponente Welche unsere Wetterdaten anzeigt.
 Diese erstellen wir wieder mit der Angular CLI im Ordner Wetter
 
 ``` bash
 cd http-calls/src/app/Wetter
 ng generate component weather --flat
 ng generate component weatherDetail
-ng generate component weatherInput
 ```
 
 Um HTTP Requests tätigen zu können bietet Angular eine Abstraktion von den Standard XML HTTP Request in Javascript. Diese macht das integrieren von APIs sehr einfach. Hierfür müssen wir in unserem Root Modul das sogenannte HttpClientModule importieren. Damit steht unserer Anwendung dieses nun zur verfügung. In unserem Wetterservice selbst müssen wir jedoch auch eine Instanz des Httpclients erstellen. Dies geschieht im Constructor der Klasse und durch die Dependency Injection sparen wir uns das schrieben dieser Form:
@@ -203,11 +202,203 @@ export class WeatherInputComponent implements OnInit {
   }
 }
 ```
+Jedoch könnten andere Komponenten auch Requests an die API machen wollen. Außerdem sollten Komponenten nicht Daten laden oder speichern sondern diese lediglich anfordern und delegieren. Für das Laden von Daten nutzt Angular sogenannte Services. Sie bieten die Möglichkeit Daten zwischen Apis und Komponenten aber auch allgemein zwischen Komponenten auszutauschen welche nicht von einander wissen müssen. Ein service wird genau wie eine Komponente mit dem generate Kommando erzeugt. Wir werden nun also unsere Http Requests in einen Service auslagern.
 
-Weather service
-Weather Interface
-weather details component
-import fontawesome in index.html
+```
+ng generate service weather
+```
+
+Unser Service sollte danach wie folgt aussehen:
+
+```typescript
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import {environment} from './../../environments/environment';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class WeatherService {
+
+  readonly BASE_URL = 'https://api.openweathermap.org/data/2.5/';
+
+  constructor(private http: HttpClient) { }
+
+  getWeatherData(city) {
+    // tslint:disable-next-line:max-line-length
+    return this.http.get(this.BASE_URL + 'weather?q=' + city + '&units=metric&mode=json&appid=' + environment.appID);
+  }
+
+}
+```
+
+Wir haben außerdem unseren API key in die Umgebungsvariablen ausgelagert und greifen von dort aus zu. Dies ist für das Beispiel Optional.
+Nun müssen wir noch unseren WeatherService in der Komponente verwenden. Hierfür nutzen wir wieder die Dependency injection von Angular. Danach rufen wir die Methode getWeatherData auf.
+```typescript
+export class WeatherComponent implements OnInit {
+
+  weatherData;
+  errormessage;
+
+  constructor(private weatherService: WeatherService) { }
+
+  ngOnInit() {
+  }
+
+  requestCity(city) {
+    this.weatherData = null;
+    this.weatherService.getWeatherData(city).subscribe((data) => {
+      this.weatherData = data;
+      this.errormessage = null;
+    }, (err) => {
+      this.weatherData = null;
+      this.errormessage = err.message;
+    });
+  }
+}
+```
+
+Wir speichern die Ergebnisse des Requestes in der Variablen weatherData welche wir zu beginn jedes requestes leeren. Außerdem speichern wir im fehlerfall unsere Daten in der Variablen errormessage um dem Benutzer einen fehler anzeigen zu können.
+Des weiteren um das volle Potential von Typescript zu nutzen sollten wir unsere API Daten typisieren. Dies bietet den Vorteil das wir während der Entwicklung nicht auf nicht vorhandene Eigenschaften des Objektes zugreifen. Gerade in größeren Entwicklerteams ist dies von Vorteil. Außerdem können so weniger fehler bei Übergabeparametern oder ähnlichem gemacht werden. Deshalb legen wir uns für die Antwort unsere Api ein Interface an welches das Datenformat beschreibt. Dies sollte in einer separaten Datei erfolgen die wir ```weather.ts``` nennen. Für die IDE VS Code empfiehlt sich gerade bei solch großen Objekten das Plugin JSON to TS. Sonst kann man dies auch händisch anlegen. Ich stelle dies hier bereit:
+
+```typescript
+interface WeatherObject {
+  coord: Coord;
+  weather: Weather[];
+  base: string;
+  main: Main;
+  visibility: number;
+  wind: Wind;
+  clouds: Clouds;
+  dt: number;
+  sys: Sys;
+  id: number;
+  name: string;
+  cod: number;
+}
+
+interface Sys {
+  type: number;
+  id: number;
+  message: number;
+  country: string;
+  sunrise: number;
+  sunset: number;
+}
+
+interface Clouds {
+  all: number;
+}
+
+interface Wind {
+  speed: number;
+  deg: number;
+}
+
+interface Main {
+  temp: number;
+  pressure: number;
+  humidity: number;
+  temp_min: number;
+  temp_max: number;
+}
+
+interface Weather {
+  id: number;
+  main: string;
+  description: string;
+  icon: string;
+}
+
+interface Coord {
+  lon: number;
+  lat: number;
+}
+```
+
+Diese Typisierung können wir nun an unsere Objekte hängen dies erfolgt durch einen doppelpunkt nach der Variablen und dahinter der Typ.
+
+```typescript
+this.weatherService.getWeatherData(city).subscribe((data: WeatherObject) => {
+  //code
+}
+```
+
+Diese Daten wollen wir nun nutzen um eine DetailKomponente zu bauen welche uns jegliche Wetterdaten anzeigen kann solange sie vom Typ WeatherObject sind. Erstellt haben wir diese bereits jedoch wollen wir sie nun mit code füllen. Um jedoch die funktionalität der Komponente zu testen können wir diese in unser Template einfügen. 
+
+```html
+<app-weather-details class="weather-details" *ngIf="weatherData"></app-weather-details>
+```
+
+Dieser Komponente müssen wir nun unsere Daten übergeben. Dies geschieht über das Binding von Angular. In unserer Detail Komponente definieren wir das wir den Parameter weatherdata erwarten und speichern dieser in selbiger Variable. Hierfür verwenden wir den Input Decorator welcher festlegt das diese Variable als property übergeben werden kann. Außerdem können wir noch den Property namen definieren bleibt dieser leer so ist es der Variablenname. Unsere Komponente sieht dann wie folgt aus:
+
+```typescript
+export class WeatherDetailsComponent {
+
+  @Input() weatherData: WeatherObject;
+
+  constructor() { }
+}
+```
+
+Nun müssen wir noch unsere Daten anzeigen. Hierfür verwenden wir folgendes Template:
+
+```html
+<div class="weather-details__container">
+  <h1>{{weatherData.name}}</h1>
+  <p>{{weatherData.weather[0].description}}</p>
+  <h1>{{weatherData.main.temp}} &deg;C</h1>
+</div>
+```
+
+Wir wollen des weiteren aber auch ein Icon abhängig vom Wetter anzeigen. Hierfür könnten wir mehrere ngifs verwenden jedoch wollen wir in diesem Zuge noch das Switch case anmerken. Für unsere Icons nutzen wir FontAwesome welches wir in unserer Index.html importieren. Wie der Import erfolgt wird auf der Seite des herstellers beschrieben dieser sollte wie folgt aussehen:
+
+```html
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+```
+
+nun können wir unser Switch case auf die jeweilige wetterbeschreibung ausführen. Das fertige Template sollte wie folgt aussehen:
+
+```html
+<div class="weather-details__container">
+  <h1>{{weatherData.name}}</h1>
+  <div class="weather-icon__container" [ngSwitch]="!!weatherData.weather[0].main">
+
+    <i class="fas fa-cloud" *ngSwitchCase="weatherData.weather[0].main === 'Clouds'">
+      </i>
+
+      <i class="fas fa-tint" *ngSwitchCase="weatherData.weather[0].main === 'Rain' || weatherData.weather[0].main === 'Drizzle'">
+      </i>
+
+      <i class="fas fa-bolt" *ngSwitchCase="weatherData.weather[0].main === 'Storm' || weatherData.weather[0].main === 'Thunderstorm'">
+      </i>
+
+
+      <i class="fas fa-sun" *ngSwitchCase="weatherData.weather[0].main === 'Sunny' || weatherData.weather[0].main === 'Clear'">
+      </i>
+
+    <i class="fas fa-eye-slash" *ngSwitchCase="weatherData.weather[0].main === 'Fog'"></i>
+  </div>
+  <p>{{weatherData.weather[0].description}}</p>
+  <h1>{{weatherData.main.temp}} &deg;C</h1>
+</div>
+```
+
+außerdem nutzen wir etwas css zum styling
+
+```css
+.weather-details__container{
+  display: flex;
+  flex-direction: column;
+  justify-items: center;
+  align-items: center;
+}
+.weather-icon__container{
+  font-size: 100px;
+}
+```
+
+Nun ist unsere Api anfrage vollständig einsatzbereit.
 
 ## Kapitel 3
 
@@ -218,7 +409,7 @@ npm install — save @types/googlemaps
 in Index.html
 
 ```Html
-<script src=”http://maps.googleapis.com/maps/api/js"></script>
+<script src="http://maps.googleapis.com/maps/api/js"></script>
 ```
 
 danach erstellen von modulen und componenten
@@ -229,11 +420,11 @@ cd src/app/shared/
 ng generate component map
 ```
 
-export map in shared
+export map in shared module
 import shared module in Wettermodule
 
 ``` html
-<div #gmap style=”width:100%;height:400px”></div>
+<div #gmap style="width:400px;height:400px"></div>
 ```
 
 ```typescript
@@ -262,5 +453,46 @@ export class MapComponent implements OnInit {
   }
 }
 ```
+
+danach nutzen von dieser Komponente in Wetter.html Template
+
+```html
+<label for="city">Choose a city: </label>
+<input id="city" name="city" type="text" #city>
+<button (click)="requestCity(city.value)">Send</button>
+
+<p *ngIf="errormessage">Stadt nicht gefunden</p>
+ <div class="weather__container">
+  <app-weather-details class="weather-details" [weatherData]="weatherData" *ngIf="weatherData"></app-weather-details>
+  <app-map class="weather-map" [lat]="weatherData.coord.lat" [len]="weatherData.coord.lon" *ngIf="weatherData"></app-map>
+</div>
+```
+
+css so können auch mobile geräte unterstützt werden.
+
+```css
+.weather__container{
+  display: flex;
+  flex-direction: row;
+}
+.weather-details{
+  flex: 0 50%;
+}
+.weather-map{
+  flex: 0 50%;
+  display: flex;
+  justify-content: center;
+}
+
+@media only screen and (max-width: 600px) {
+  .weather__container{
+    flex-direction: column;
+  }
+}
+```
+
+fertiges Projekt
+
+[GITHUB](https://github.com/henrysachs/Angular-getting-started)
 
 [DEMO](https://weatherapi-1528656089426.firebaseapp.com)

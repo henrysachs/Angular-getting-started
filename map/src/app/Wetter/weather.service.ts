@@ -16,8 +16,4 @@ export class WeatherService {
     return this.http.get(this.BASE_URL + 'weather?q=' + city + '&units=metric&mode=json&appid=' + environment.appID);
   }
 
-  getCities(city) {
-    // tslint:disable-next-line:max-line-length
-    return this.http.get(this.BASE_URL + 'find?q=' + city + '&type=like&units=metric&mode=json&appid=' + environment.appID);
-  }
 }

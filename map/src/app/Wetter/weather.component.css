@@ -1,0 +1,18 @@
+.weather__container{
+  display: flex;
+  flex-direction: row;
+}
+.weather-details{
+  flex: 0 50%;
+}
+.weather-map{
+  flex: 0 50%;
+  display: flex;
+  justify-content: center;
+}
+
+@media only screen and (max-width: 600px) {
+  .weather__container{
+    flex-direction: column;
+  }
+}
